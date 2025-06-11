@@ -1,10 +1,10 @@
 from fastapi import FastAPI, Request, UploadFile, File, Form
-from fastapi.responses import HTMLResponse, FileResponse, StreamingResponse
+from fastapi.responses import HTMLResponse, FileResponse, StreamingResponse, PlainTextResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import os
-from .gpx_utils import combine_gpx_files
+from .gpx_utils import combine_gpx_files, fit_to_gpx_xml
 import io
 
 app = FastAPI(title="GPX Combiner Web App")
@@ -40,4 +40,15 @@ async def upload_gpx(files: list[UploadFile] = File(...)):
         combined_gpx = combine_gpx_files(file_contents)
     except Exception as e:
         return {"error": str(e)}
-    return StreamingResponse(io.BytesIO(combined_gpx.encode('utf-8')), media_type='application/gpx+xml', headers={"Content-Disposition": "attachment; filename=combined.gpx"}) 
+    return StreamingResponse(io.BytesIO(combined_gpx.encode('utf-8')), media_type='application/gpx+xml', headers={"Content-Disposition": "attachment; filename=combined.gpx"})
+
+@app.post("/convert-fit", response_class=PlainTextResponse)
+async def convert_fit(file: UploadFile = File(...)):
+    if not file.filename.lower().endswith('.fit'):
+        return PlainTextResponse("Invalid file type", status_code=400)
+    content = await file.read()
+    try:
+        gpx_xml = fit_to_gpx_xml(content)
+    except Exception as e:
+        return PlainTextResponse(f"Error converting FIT: {str(e)}", status_code=400)
+    return gpx_xml 

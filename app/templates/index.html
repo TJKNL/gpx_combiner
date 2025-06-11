@@ -18,15 +18,16 @@
     <main class="flex-1 flex flex-col items-center justify-center px-4 py-8">
         <div class="card bg-white/90 rounded-2xl p-8 w-full max-w-md flex flex-col items-center shadow-lg border border-amber-100">
             <h1 class="text-3xl font-bold text-rose-700 mb-2 tracking-tight">GPX Combiner</h1>
-            <p class="text-amber-700 mb-6 text-center">Combine multiple <b>.gpx</b> and <b>.fit</b> files in order and preview your route instantly.</p>
-            <form id="upload-form" class="w-full flex flex-col gap-4" enctype="multipart/form-data">
-                <input id="gpx-files" name="files" type="file" accept=".gpx,.fit" multiple required class="block w-full text-gray-700 border border-rose-200 rounded-lg p-3 bg-rose-50 focus:border-amber-400 transition" />
-                <button type="submit" class="w-full bg-rose-500 text-white py-3 rounded-lg font-semibold hover:bg-amber-400 hover:text-rose-900 transition">Combine & Preview</button>
-            </form>
-            <div id="file-list" class="w-full mt-4 text-teal-700"></div>
-            <a id="download-link" href="#" class="hidden mt-4 w-full text-center bg-teal-500 text-white px-4 py-3 rounded-lg font-semibold hover:bg-amber-400 hover:text-teal-900 transition">Download Combined GPX</a>
+            <p class="text-amber-700 mb-4 text-center">Upload <b>.gpx</b> or <b>.fit</b> files one or more at a time. See all routes on the map. Remove or add files as you wish. When ready, download the combined GPX.</p>
+            <div class="w-full flex flex-col gap-4">
+                <label class="block text-sm font-medium text-rose-700">Add GPX or FIT files:</label>
+                <input id="gpx-files" type="file" accept=".gpx,.fit" multiple class="block w-full text-gray-700 border border-rose-200 rounded-lg p-3 bg-rose-50 focus:border-amber-400 transition" />
+            </div>
+            <div id="file-list" class="w-full mt-6 mb-2 text-teal-700"></div>
+            <button id="download-link" class="w-full bg-teal-500 text-white px-4 py-3 rounded-lg font-semibold hover:bg-amber-400 hover:text-teal-900 transition mt-2 disabled:opacity-50" disabled>Download Combined GPX</button>
         </div>
         <div class="w-full max-w-2xl mt-8">
+            <div class="border-b border-amber-200 mb-4"></div>
             <div id="map" class="h-64 rounded-2xl shadow border border-amber-100"></div>
         </div>
     </main>
