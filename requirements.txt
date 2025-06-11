@@ -4,3 +4,4 @@ gpxpy
 pytest
 jinja2
 python-multipart
+fitparse

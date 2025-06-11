@@ -28,16 +28,16 @@ def index(request: Request):
 @app.post("/upload")
 async def upload_gpx(files: list[UploadFile] = File(...)):
     # Validate file types and size
-    gpx_contents = []
+    file_contents = []
     for file in files:
-        if not file.filename.lower().endswith('.gpx'):
+        if not (file.filename.lower().endswith('.gpx') or file.filename.lower().endswith('.fit')):
             return {"error": f"Invalid file type: {file.filename}"}
         content = await file.read()
         if len(content) > 2 * 1024 * 1024:  # 2MB per file limit
             return {"error": f"File too large: {file.filename}"}
-        gpx_contents.append(content.decode('utf-8'))
+        file_contents.append((file.filename, content))
     try:
-        combined_gpx = combine_gpx_files(gpx_contents)
+        combined_gpx = combine_gpx_files(file_contents)
     except Exception as e:
         return {"error": str(e)}
     return StreamingResponse(io.BytesIO(combined_gpx.encode('utf-8')), media_type='application/gpx+xml', headers={"Content-Disposition": "attachment; filename=combined.gpx"}) 
