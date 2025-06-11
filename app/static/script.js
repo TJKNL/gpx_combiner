@@ -33,31 +33,36 @@ function clearMap() {
 function plotAllFiles() {
     clearMap();
     if (!uploadedFiles.length) return;
-    let bounds = null;
+    let loadedCount = 0;
+    let allBounds = null;
+    const totalToLoad = uploadedFiles.filter(f => f.gpxPreview).length;
+    if (totalToLoad === 0) return;
     uploadedFiles.forEach((fileObj, idx) => {
         if (fileObj.gpxPreview) {
             const color = routeColors[idx % routeColors.length];
-            const gpxLayer = plotGPX(fileObj.gpxPreview, color, false); // don't fit bounds yet
-            if (gpxLayer) {
-                if (!bounds) {
-                    bounds = gpxLayer.getBounds ? gpxLayer.getBounds() : null;
-                } else if (gpxLayer.getBounds) {
-                    bounds = bounds.extend(gpxLayer.getBounds());
+            plotGPX(fileObj.gpxPreview, color, false, function(layer) {
+                // On loaded
+                if (layer && layer.getBounds && layer.getBounds().isValid()) {
+                    if (!allBounds) {
+                        allBounds = layer.getBounds();
+                    } else {
+                        allBounds.extend(layer.getBounds());
+                    }
                 }
-            }
+                loadedCount++;
+                if (loadedCount === totalToLoad && allBounds && allBounds.isValid()) {
+                    map.fitBounds(allBounds, { padding: [20, 20] });
+                }
+            });
         }
     });
-    // After all layers are added, fit bounds to all
-    if (gpxLayers.length && bounds && bounds.isValid && bounds.isValid()) {
-        map.fitBounds(bounds, { padding: [20, 20] });
-    }
 }
 
-function plotGPX(gpxText, color, fit=true) {
+function plotGPX(gpxText, color, fit=true, onLoadedCb) {
     if (typeof L.GPX !== 'function') {
         const script = document.createElement('script');
         script.src = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.7.0/gpx.min.js';
-        script.onload = () => plotGPX(gpxText, color, fit);
+        script.onload = () => plotGPX(gpxText, color, fit, onLoadedCb);
         document.body.appendChild(script);
         return;
     }
@@ -70,9 +75,10 @@ function plotGPX(gpxText, color, fit=true) {
         },
         marker_options: { startIconUrl: null, endIconUrl: null, shadowUrl: null }
     });
-    if (fit) {
+    if (fit || onLoadedCb) {
         gpxLayer.on('loaded', function(e) {
-            map.fitBounds(e.target.getBounds());
+            if (fit) map.fitBounds(e.target.getBounds());
+            if (onLoadedCb) onLoadedCb(gpxLayer);
         });
     }
     gpxLayer.addTo(map);
