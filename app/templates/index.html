@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPX Combiner</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.1/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+    <header class="bg-white shadow p-4 text-center">
+        <h1 class="text-2xl font-bold text-gray-800">GPX Combiner</h1>
+        <p class="text-gray-500">Combine multiple GPX files and preview your route</p>
+    </header>
+    <main class="flex-1 flex flex-col items-center p-4">
+        <form id="upload-form" class="w-full max-w-md bg-white rounded shadow p-4 mb-4" enctype="multipart/form-data">
+            <label class="block mb-2 font-semibold">Upload GPX Files (in order):</label>
+            <input id="gpx-files" name="files" type="file" accept=".gpx" multiple required class="block w-full text-gray-700 border rounded p-2 mb-4" />
+            <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition">Combine & Preview</button>
+        </form>
+        <div id="file-list" class="w-full max-w-md mb-4"></div>
+        <div id="map" class="w-full max-w-2xl h-64 rounded shadow mb-4"></div>
+        <a id="download-link" href="#" class="hidden bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">Download Combined GPX</a>
+    </main>
+    <footer class="text-center text-gray-400 text-xs p-2">&copy; 2024 GPX Combiner</footer>
+    <script src="/static/script.js"></script>
+</body>
+</html> 
