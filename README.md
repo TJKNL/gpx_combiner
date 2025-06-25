@@ -34,6 +34,8 @@ Combine multiple **GPX** _or_ **FIT** activity files into a single GPX in second
     ```env
     DATABASE_URL=postgresql://user:pass@localhost:5432/gpx_combiner
     APP_DOMAIN=http://localhost:8000
+    # required for anonymised logging (must be random)
+    HASH_SALT=$(python - <<'PY' ;import secrets, sys; print(secrets.token_hex(32)); PY)
     ```
 4.  Run the app:
     ```bash

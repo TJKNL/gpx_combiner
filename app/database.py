@@ -48,9 +48,14 @@ class DownloadLog(Base):
     timestamp = Column(DateTime, default=datetime.datetime.utcnow)
 
 def anonymise_ip(ip: str) -> str:
-    """Return a truncated SHA-256 hash of the IP plus a salt.
-    This preserves uniqueness while removing personal data."""
-    salt = os.getenv("HASH_SALT", "gpxcombiner")
+    """Return a truncated SHA-256 hash of the IP plus a required secret salt.
+    Raises RuntimeError if HASH_SALT is missing to avoid insecure defaults."""
+    salt = os.getenv("HASH_SALT")
+    if not salt:
+        raise RuntimeError(
+            "HASH_SALT environment variable is not set.\n"
+            "Set a strong random value in Railway variables (or .env locally) before starting the app."
+        )
     return hashlib.sha256(f"{ip}{salt}".encode("utf-8")).hexdigest()[:16]
 
 def get_db():
