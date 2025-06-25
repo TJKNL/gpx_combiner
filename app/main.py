@@ -77,8 +77,8 @@ async def upload_gpx(request: Request, files: list[UploadFile] = File(...), db: 
         combined_gpx = combine_gpx_files(file_contents)
 
         # Log the download after successful combination
-        logger.info(f"Attempting to log download for IP: {request.client.host}")
-        log_entry = database.DownloadLog(ip_address=request.client.host)
+        logger.info(f"Logging anonymous download event for IP: {request.client.host}")
+        log_entry = database.DownloadLog(ip_address=None, ip_hash=database.anonymise_ip(request.client.host))
         db.add(log_entry)
         db.commit()
         db.refresh(log_entry)

@@ -4,6 +4,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 import datetime
+import hashlib
 
 load_dotenv()
 
@@ -31,8 +32,17 @@ class DownloadLog(Base):
     __tablename__ = "download_logs"
 
     id = Column(Integer, primary_key=True, index=True)
-    ip_address = Column(String, index=True)
+    # Deprecated (kept null) – hashed variant below is used instead
+    ip_address = Column(String, nullable=True)
+    # New anonymised field
+    ip_hash = Column(String, index=True)
     timestamp = Column(DateTime, default=datetime.datetime.utcnow)
+
+def anonymise_ip(ip: str) -> str:
+    """Return a truncated SHA-256 hash of the IP plus a salt.
+    This preserves uniqueness while removing personal data."""
+    salt = os.getenv("HASH_SALT", "gpxcombiner")
+    return hashlib.sha256(f"{ip}{salt}".encode("utf-8")).hexdigest()[:16]
 
 def get_db():
     db = SessionLocal()
