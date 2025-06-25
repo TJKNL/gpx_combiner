@@ -75,25 +75,26 @@ async def upload_gpx(request: Request, files: list[UploadFile] = File(...), db: 
     
     try:
         combined_gpx = combine_gpx_files(file_contents)
-    except Exception as e:
-        logger.error(f"Error combining files: {e}", exc_info=True)
-        return JSONResponse(status_code=400, content={"error": str(e)})
 
-    # Log the download
-    try:
+        # Log the download after successful combination
         logger.info(f"Attempting to log download for IP: {request.client.host}")
         log_entry = database.DownloadLog(ip_address=request.client.host)
         db.add(log_entry)
         db.commit()
         db.refresh(log_entry)
         logger.info(f"Successfully logged download event with ID: {log_entry.id}")
+        
+        return StreamingResponse(
+            io.BytesIO(combined_gpx.encode('utf-8')),
+            media_type='application/gpx+xml',
+            headers={"Content-Disposition": "attachment; filename=combined.gpx"}
+        )
     except Exception as e:
-        logger.error(f"Failed to log download to database: {e}", exc_info=True)
-        # We don't want to fail the whole request if logging fails,
-        # so we'll just log the error and continue.
-        pass
-
-    return StreamingResponse(io.BytesIO(combined_gpx.encode('utf-8')), media_type='application/gpx+xml', headers={"Content-Disposition": "attachment; filename=combined.gpx"})
+        logger.error(f"Failed during file combination or logging: {e}", exc_info=True)
+        # Check if the exception is from the database and provide a more specific error
+        if "database" in str(e).lower():
+             return JSONResponse(status_code=500, content={"error": "A database error occurred."})
+        return JSONResponse(status_code=400, content={"error": str(e)})
 
 @app.post("/convert-fit", response_class=PlainTextResponse)
 async def convert_fit(file: UploadFile = File(...)):
