@@ -80,8 +80,9 @@ def combine_gpx_files(file_contents: List[tuple[str, bytes]]) -> str:
             else:
                 raise ValueError(f"Unsupported file type: {filename}")
         except Exception as e:
-            # Add context to the error for better debugging
-            raise type(e)(f"Failed to process file {filename}: {e}")
+            # Add context to the error for better debugging.
+            # Using `from e` preserves the original traceback.
+            raise ValueError(f"Failed to process file '{filename}': {e}") from e
 
     if not gpx_objs:
         raise ValueError("No valid GPX data could be parsed from the provided files.")

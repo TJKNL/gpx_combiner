@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Request, UploadFile, File, Form, Depends
-from fastapi.responses import HTMLResponse, FileResponse, StreamingResponse, PlainTextResponse, Response
+from fastapi.responses import HTMLResponse, FileResponse, StreamingResponse, PlainTextResponse, Response, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -67,17 +67,17 @@ async def upload_gpx(request: Request, files: list[UploadFile] = File(...), db: 
     file_contents = []
     for file in files:
         if not (file.filename.lower().endswith('.gpx') or file.filename.lower().endswith('.fit')):
-            return {"error": f"Invalid file type: {file.filename}"}
+            return JSONResponse(status_code=400, content={"error": f"Invalid file type: {file.filename}"})
         content = await file.read()
         if len(content) > 2 * 1024 * 1024:  # 2MB per file limit
-            return {"error": f"File too large: {file.filename}"}
+            return JSONResponse(status_code=400, content={"error": f"File too large: {file.filename}"})
         file_contents.append((file.filename, content))
     
     try:
         combined_gpx = combine_gpx_files(file_contents)
     except Exception as e:
         logger.error(f"Error combining files: {e}", exc_info=True)
-        return {"error": str(e)}
+        return JSONResponse(status_code=400, content={"error": str(e)})
 
     # Log the download
     try:

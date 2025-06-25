@@ -189,7 +189,9 @@ downloadBtn.addEventListener('click', async () => {
         a.click();
         setTimeout(() => document.body.removeChild(a), 100);
     } else {
-        alert('Failed to combine files.');
+        const errorData = await res.json();
+        const errorMessage = errorData.error || 'An unknown error occurred.';
+        alert(`Failed to combine files: ${errorMessage}`);
     }
 });
 
