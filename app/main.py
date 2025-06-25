@@ -7,8 +7,18 @@ import os
 from .gpx_utils import combine_gpx_files, fit_to_gpx_xml
 import io
 import datetime
+import logging
+import sys
 from sqlalchemy.orm import Session
 from . import database
+
+# Configure logging to output to stdout for containerized environments like Railway
+logging.basicConfig(
+    level=logging.INFO,
+    stream=sys.stdout,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 database.Base.metadata.create_all(bind=database.engine)
 
@@ -28,17 +38,17 @@ templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
 
 @app.get("/robots.txt", response_class=PlainTextResponse)
 def robots():
-    return "User-agent: *\nAllow: /"
+    return "User-agent: *\\nAllow: /"
 
 @app.get("/sitemap.xml")
-def sitemap():
-    # In a real app, you would generate this dynamically
-    # and include the actual domain
+def sitemap(request: Request):
+    """Generates a sitemap.xml using the APP_DOMAIN environment variable."""
+    app_domain = os.getenv("APP_DOMAIN", f"{request.url.scheme}://{request.url.netloc}")
     today = datetime.date.today().isoformat()
     xml_content = f"""<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://gpx-combiner.nl/</loc>
+    <loc>{app_domain}/</loc>
     <lastmod>{today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -62,14 +72,27 @@ async def upload_gpx(request: Request, files: list[UploadFile] = File(...), db: 
         if len(content) > 2 * 1024 * 1024:  # 2MB per file limit
             return {"error": f"File too large: {file.filename}"}
         file_contents.append((file.filename, content))
+    
     try:
         combined_gpx = combine_gpx_files(file_contents)
-        # Log the download
+    except Exception as e:
+        logger.error(f"Error combining files: {e}", exc_info=True)
+        return {"error": str(e)}
+
+    # Log the download
+    try:
+        logger.info(f"Attempting to log download for IP: {request.client.host}")
         log_entry = database.DownloadLog(ip_address=request.client.host)
         db.add(log_entry)
         db.commit()
+        db.refresh(log_entry)
+        logger.info(f"Successfully logged download event with ID: {log_entry.id}")
     except Exception as e:
-        return {"error": str(e)}
+        logger.error(f"Failed to log download to database: {e}", exc_info=True)
+        # We don't want to fail the whole request if logging fails,
+        # so we'll just log the error and continue.
+        pass
+
     return StreamingResponse(io.BytesIO(combined_gpx.encode('utf-8')), media_type='application/gpx+xml', headers={"Content-Disposition": "attachment; filename=combined.gpx"})
 
 @app.post("/convert-fit", response_class=PlainTextResponse)
