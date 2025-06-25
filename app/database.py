@@ -1,5 +1,5 @@
 import os
-from sqlalchemy import create_engine, Column, Integer, String, DateTime
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
@@ -25,6 +25,15 @@ if not DATABASE_URL:
     raise Exception("Could not configure database connection. Please set DATABASE_URL or Railway's PG* environment variables.")
 
 engine = create_engine(DATABASE_URL)
+
+# --- one-off schema patch (adds ip_hash column if upgrading from v1 schema) ---
+with engine.begin() as conn:
+    conn.execute(text("""
+        ALTER TABLE download_logs
+        ADD COLUMN IF NOT EXISTS ip_hash VARCHAR;
+    """))
+# ---------------------------------------------------------------------------
+
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
