@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, UploadFile, File, Form
+from fastapi import FastAPI, Request, UploadFile, File, Form, Depends
 from fastapi.responses import HTMLResponse, FileResponse, StreamingResponse, PlainTextResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -7,6 +7,10 @@ import os
 from .gpx_utils import combine_gpx_files, fit_to_gpx_xml
 import io
 import datetime
+from sqlalchemy.orm import Session
+from . import database
+
+database.Base.metadata.create_all(bind=database.engine)
 
 app = FastAPI(title="GPX Combiner Web App")
 
@@ -48,7 +52,7 @@ def index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
 @app.post("/upload")
-async def upload_gpx(files: list[UploadFile] = File(...)):
+async def upload_gpx(request: Request, files: list[UploadFile] = File(...), db: Session = Depends(database.get_db)):
     # Validate file types and size
     file_contents = []
     for file in files:
@@ -60,6 +64,10 @@ async def upload_gpx(files: list[UploadFile] = File(...)):
         file_contents.append((file.filename, content))
     try:
         combined_gpx = combine_gpx_files(file_contents)
+        # Log the download
+        log_entry = database.DownloadLog(ip_address=request.client.host)
+        db.add(log_entry)
+        db.commit()
     except Exception as e:
         return {"error": str(e)}
     return StreamingResponse(io.BytesIO(combined_gpx.encode('utf-8')), media_type='application/gpx+xml', headers={"Content-Disposition": "attachment; filename=combined.gpx"})

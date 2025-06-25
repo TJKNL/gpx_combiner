@@ -5,3 +5,8 @@ pytest
 jinja2
 python-multipart
 fitparse
+lxml
+fastapi-cors
+sqlalchemy
+psycopg2-binary
+python-dotenv
