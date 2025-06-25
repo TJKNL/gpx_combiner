@@ -1,11 +1,12 @@
 from fastapi import FastAPI, Request, UploadFile, File, Form
-from fastapi.responses import HTMLResponse, FileResponse, StreamingResponse, PlainTextResponse
+from fastapi.responses import HTMLResponse, FileResponse, StreamingResponse, PlainTextResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import os
 from .gpx_utils import combine_gpx_files, fit_to_gpx_xml
 import io
+import datetime
 
 app = FastAPI(title="GPX Combiner Web App")
 
@@ -20,6 +21,27 @@ app.add_middleware(
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
+
+@app.get("/robots.txt", response_class=PlainTextResponse)
+def robots():
+    return "User-agent: *\nAllow: /"
+
+@app.get("/sitemap.xml")
+def sitemap():
+    # In a real app, you would generate this dynamically
+    # and include the actual domain
+    today = datetime.date.today().isoformat()
+    xml_content = f"""<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://your-domain.com/</loc>
+    <lastmod>{today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+</urlset>
+"""
+    return Response(content=xml_content, media_type="application/xml")
 
 @app.get("/", response_class=HTMLResponse)
 def index(request: Request):
