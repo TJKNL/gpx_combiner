@@ -69,7 +69,7 @@ async def upload_gpx(request: Request, files: list[UploadFile] = File(...), db: 
         if not (file.filename.lower().endswith('.gpx') or file.filename.lower().endswith('.fit')):
             return JSONResponse(status_code=400, content={"error": f"Invalid file type: {file.filename}"})
         content = await file.read()
-        if len(content) > 2 * 1024 * 1024:  # 2MB per file limit
+        if len(content) > 20 * 1024 * 1024:  # 20MB per file limit
             return JSONResponse(status_code=400, content={"error": f"File too large: {file.filename}"})
         file_contents.append((file.filename, content))
     
