@@ -6,16 +6,19 @@
     <title>GPX Combiner | Merge and Combine GPX and FIT route files</title>
     <meta name="description" content="Easily combine multiple .gpx and .fit files into a single GPX file. Upload your route files, preview them on a map, and download the combined track. Perfect for cyclists, runners, and hikers.">
     <meta name="keywords" content="gpx, fit, combine gpx, merge gpx, gpx combiner, fit to gpx, route combiner, cycling, running, hiking">
+    <link rel="canonical" href="{{ app_domain }}/" />
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://gpx-combiner.nl/">
+    <meta property="og:url" content="{{ app_domain }}/">
     <meta property="og:title" content="GPX Combiner | Merge and Combine GPX and FIT route files">
     <meta property="og:description" content="Easily combine multiple .gpx and .fit files into a single GPX file. Upload your route files, preview them on a map, and download the combined track.">
+    <meta property="og:image" content="{{ app_domain }}/static/logo.png">
     <!-- Twitter -->
-    <meta property="twitter:card" content="summary">
-    <meta property="twitter:url" content="https://gpx-combiner.nl/">
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="{{ app_domain }}/">
     <meta property="twitter:title" content="GPX Combiner | Merge and Combine GPX and FIT route files">
     <meta property="twitter:description" content="Easily combine multiple .gpx and .fit files into a single GPX file. Upload your route files, preview them on a map, and download the combined track.">
+    <meta property="twitter:image" content="{{ app_domain }}/static/logo.png">
     <!-- Favicon & Icons -->
     <link rel="icon" type="image/png" sizes="32x32" href="/static/logo.png">
     <link rel="apple-touch-icon" href="/static/logo.png">
@@ -32,10 +35,13 @@
 <body class="bg-gradient-to-br from-rose-50 via-amber-50 to-teal-100 min-h-screen flex flex-col">
     <main class="flex-1 flex flex-col items-center justify-center px-4 py-8">
         <div class="card bg-white/90 rounded-2xl p-8 w-full max-w-md flex flex-col items-center shadow-lg border border-amber-100">
-            <h1 class="text-3xl font-bold text-rose-700 mb-2 tracking-tight">GPX Combiner</h1>
-            <p class="text-amber-700 mb-4 text-center">Upload <b>.gpx</b> or <b>.fit</b> files one or more at a time. See all routes on the map. Remove or add files as you wish. When ready, download the combined GPX.</p>
+            <header class="text-center">
+                <img src="/static/logo.png" alt="GPX Combiner company logo" class="w-16 h-16 mx-auto mb-4">
+                <h1 class="text-3xl font-bold text-rose-700 mb-2 tracking-tight">GPX Combiner</h1>
+                <h2 class="text-amber-700 mb-4">Upload <b>.gpx</b> or <b>.fit</b> files one or more at a time. See all routes on the map. Remove or add files as you wish. When ready, download the combined GPX.</h2>
+            </header>
             <div class="w-full flex flex-col gap-4">
-                <label class="block text-sm font-medium text-rose-700">Add GPX or FIT files:</label>
+                <label for="gpx-files" class="block text-sm font-medium text-rose-700">Add GPX or FIT files:</label>
                 <input id="gpx-files" type="file" accept=".gpx,.fit" multiple class="block w-full text-gray-700 border border-rose-200 rounded-lg p-3 bg-rose-50 focus:border-amber-400 transition" />
             </div>
             <div id="file-list" class="w-full mt-6 mb-2 text-teal-700"></div>
@@ -47,7 +53,7 @@
             <div id="map" class="h-64 rounded-2xl shadow border border-amber-100"></div>
         </div>
     </main>
-    <footer class="text-center text-amber-400 text-xs p-4">&copy; 2025 GPX Combiner &mdash; <a href="https://www.twankerkhof.nl" class="underline hover:text-rose-600" target="_blank" rel="noopener">Twan Kerkhof</a></footer>
+    <footer class="text-center text-amber-400 text-xs p-4">&copy; 2025 GPX Combiner &mdash; <a href="https://www.twankerkhof.nl" class="underline hover:text-rose-600" target="_blank" rel="noopener noreferrer" title="Twan's personal website">Twan Kerkhof</a></footer>
     <script src="/static/script.js"></script>
 </body>
 </html> 

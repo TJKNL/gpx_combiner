@@ -10,7 +10,10 @@ def test_combine_gpx_files():
     <gpx version="1.1" creator="test">
       <trk><name>Track 2</name><trkseg><trkpt lat="2" lon="2"></trkpt></trkseg></trk>
     </gpx>'''
-    combined = combine_gpx_files([gpx1, gpx2])
+    combined = combine_gpx_files([
+        ("track1.gpx", gpx1.encode('utf-8')),
+        ("track2.gpx", gpx2.encode('utf-8'))
+    ])
     assert "Track 1" in combined
     assert "Track 2" in combined
     assert combined.count("<trk>") == 2 

@@ -59,7 +59,8 @@ def sitemap(request: Request):
 
 @app.get("/", response_class=HTMLResponse)
 def index(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    app_domain = os.getenv("APP_DOMAIN", f"{request.url.scheme}://{request.url.netloc}")
+    return templates.TemplateResponse("index.html", {"request": request, "app_domain": app_domain})
 
 @app.post("/upload")
 async def upload_gpx(request: Request, files: list[UploadFile] = File(...), db: Session = Depends(database.get_db)):
