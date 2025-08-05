@@ -19,9 +19,9 @@ body {
     font-family: 'Inter', system-ui, sans-serif;
 }
 
-/* Beautiful Gradient Background */
+/* Beautiful Warm Gradient Background */
 .bg-gradient-to-br {
-    background: linear-gradient(135deg, #fff1f2 0%, #fffbeb 50%, #ccfbf1 100%);
+    background: linear-gradient(135deg, #fef2f2 0%, #fef3c7 35%, #fed7aa 70%, #fecaca 100%);
 }
 
 .from-rose-50 { /* Applied via .bg-gradient-to-br */ }
