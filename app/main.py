@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request, UploadFile, File, Form, Depends, HTTPException
 from fastapi.responses import HTMLResponse, FileResponse, StreamingResponse, PlainTextResponse, Response, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import os
@@ -24,6 +25,9 @@ database.Base.metadata.create_all(bind=database.engine)
 
 app = FastAPI(title="GPX Combiner Web App")
 
+# Add compression middleware for better performance
+app.add_middleware(GZipMiddleware, minimum_size=1000)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -33,12 +37,26 @@ app.add_middleware(
 )
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
+
+# Custom StaticFiles with caching headers
+class CachedStaticFiles(StaticFiles):
+    def file_response(self, *args, **kwargs):
+        response = super().file_response(*args, **kwargs)
+        # Add cache headers for static assets (1 year for CSS/JS, 1 month for images)
+        if any(args[0].endswith(ext) for ext in ['.css', '.js']):
+            response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+        elif any(args[0].endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.gif', '.ico']):
+            response.headers["Cache-Control"] = "public, max-age=2592000"
+        return response
+
+app.mount("/static", CachedStaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
 
 @app.get("/robots.txt", response_class=PlainTextResponse)
 def robots():
-    return "User-agent: *\\nAllow: /"
+    response = PlainTextResponse("User-agent: *\\nAllow: /")
+    response.headers["Cache-Control"] = "public, max-age=86400"  # Cache for 1 day
+    return response
 
 @app.get("/sitemap.xml")
 def sitemap(request: Request):
@@ -55,12 +73,20 @@ def sitemap(request: Request):
   </url>
 </urlset>
 """
-    return Response(content=xml_content, media_type="application/xml")
+    response = Response(content=xml_content, media_type="application/xml")
+    response.headers["Cache-Control"] = "public, max-age=3600"  # Cache for 1 hour
+    return response
 
 @app.get("/", response_class=HTMLResponse)
 def index(request: Request):
     app_domain = os.getenv("APP_DOMAIN", f"{request.url.scheme}://{request.url.netloc}")
-    return templates.TemplateResponse("index.html", {"request": request, "app_domain": app_domain})
+    response = templates.TemplateResponse("index.html", {"request": request, "app_domain": app_domain})
+    # Add performance and security headers
+    response.headers["Cache-Control"] = "public, max-age=3600"  # Cache for 1 hour
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    return response
 
 @app.post("/upload")
 async def upload_gpx(request: Request, files: list[UploadFile] = File(...), db: Session = Depends(database.get_db)):
