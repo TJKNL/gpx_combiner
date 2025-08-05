@@ -1,6 +1,7 @@
-from fastapi import FastAPI, Request, UploadFile, File, Form, Depends
+from fastapi import FastAPI, Request, UploadFile, File, Form, Depends, HTTPException
 from fastapi.responses import HTMLResponse, FileResponse, StreamingResponse, PlainTextResponse, Response, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import os
@@ -24,6 +25,9 @@ database.Base.metadata.create_all(bind=database.engine)
 
 app = FastAPI(title="GPX Combiner Web App")
 
+# Add compression middleware for better performance
+app.add_middleware(GZipMiddleware, minimum_size=1000)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -33,12 +37,28 @@ app.add_middleware(
 )
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
 
+@app.get("/styles.css", response_class=PlainTextResponse)
+def get_styles():
+    """Serve CSS directly as fallback"""
+    css_path = os.path.join(BASE_DIR, "static", "styles.css")
+    try:
+        with open(css_path, 'r') as f:
+            css_content = f.read()
+        response = PlainTextResponse(css_content, media_type="text/css")
+        response.headers["Cache-Control"] = "public, max-age=3600"
+        return response
+    except FileNotFoundError:
+        return PlainTextResponse("/* CSS file not found */", status_code=404)
+
 @app.get("/robots.txt", response_class=PlainTextResponse)
 def robots():
-    return "User-agent: *\\nAllow: /"
+    response = PlainTextResponse("User-agent: *\\nAllow: /")
+    response.headers["Cache-Control"] = "public, max-age=86400"  # Cache for 1 day
+    return response
 
 @app.get("/sitemap.xml")
 def sitemap(request: Request):
@@ -55,12 +75,20 @@ def sitemap(request: Request):
   </url>
 </urlset>
 """
-    return Response(content=xml_content, media_type="application/xml")
+    response = Response(content=xml_content, media_type="application/xml")
+    response.headers["Cache-Control"] = "public, max-age=3600"  # Cache for 1 hour
+    return response
 
 @app.get("/", response_class=HTMLResponse)
 def index(request: Request):
     app_domain = os.getenv("APP_DOMAIN", f"{request.url.scheme}://{request.url.netloc}")
-    return templates.TemplateResponse("index.html", {"request": request, "app_domain": app_domain})
+    response = templates.TemplateResponse("index.html", {"request": request, "app_domain": app_domain})
+    # Add performance and security headers
+    response.headers["Cache-Control"] = "public, max-age=3600"  # Cache for 1 hour
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    return response
 
 @app.post("/upload")
 async def upload_gpx(request: Request, files: list[UploadFile] = File(...), db: Session = Depends(database.get_db)):
@@ -106,4 +134,9 @@ async def convert_fit(file: UploadFile = File(...)):
         gpx_xml = fit_to_gpx_xml(content)
     except Exception as e:
         return PlainTextResponse(f"Error converting FIT: {str(e)}", status_code=400)
-    return gpx_xml 
+    return gpx_xml
+
+@app.exception_handler(404)
+async def custom_404_handler(request: Request, exc: HTTPException):
+    app_domain = os.getenv("APP_DOMAIN", f"{request.url.scheme}://{request.url.netloc}")
+    return templates.TemplateResponse("404.html", {"request": request, "app_domain": app_domain}, status_code=404) 
