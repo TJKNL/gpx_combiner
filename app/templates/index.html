@@ -104,6 +104,19 @@
     
     <!-- Leaflet JS with defer -->
     <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    
+    <!-- Suppress styleMedia deprecation warning from Leaflet -->
+    <script>
+        // Override console.warn to filter out the styleMedia deprecation warning
+        const originalWarn = console.warn;
+        console.warn = function(...args) {
+            const message = args.join(' ');
+            if (message.includes('window.styleMedia is a deprecated draft version')) {
+                return; // Suppress this specific warning
+            }
+            originalWarn.apply(console, args);
+        };
+    </script>
 
     
     <!-- JSON-LD Structured Data -->
