@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, UploadFile, File, Form, Depends
+from fastapi import FastAPI, Request, UploadFile, File, Form, Depends, HTTPException
 from fastapi.responses import HTMLResponse, FileResponse, StreamingResponse, PlainTextResponse, Response, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -106,4 +106,9 @@ async def convert_fit(file: UploadFile = File(...)):
         gpx_xml = fit_to_gpx_xml(content)
     except Exception as e:
         return PlainTextResponse(f"Error converting FIT: {str(e)}", status_code=400)
-    return gpx_xml 
+    return gpx_xml
+
+@app.exception_handler(404)
+async def custom_404_handler(request: Request, exc: HTTPException):
+    app_domain = os.getenv("APP_DOMAIN", f"{request.url.scheme}://{request.url.netloc}")
+    return templates.TemplateResponse("404.html", {"request": request, "app_domain": app_domain}, status_code=404) 

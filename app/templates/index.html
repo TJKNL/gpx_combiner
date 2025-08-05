@@ -10,21 +10,21 @@
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GPX Combiner | Merge and Combine GPX and FIT route files</title>
-    <meta name="description" content="Easily combine multiple .gpx and .fit files into a single GPX file. Upload your route files, preview them on a map, and download the combined track. Perfect for cyclists, runners, and hikers.">
-    <meta name="keywords" content="gpx, fit, combine gpx, merge gpx, gpx combiner, fit to gpx, route combiner, cycling, running, hiking">
+    <title>GPX Combiner | Merge GPX & FIT Files for Strava and Komoot Upload</title>
+    <meta name="description" content="Combine multiple GPX and FIT files into one for easy Strava and Komoot uploads. Merge Garmin, Wahoo, and other GPS tracks. Preview routes on map, download combined GPX instantly. Perfect for cyclists, runners, and hikers.">
+    <meta name="keywords" content="gpx combiner, merge gpx files, combine fit files, strava upload, komoot upload, garmin gpx merge, wahoo fit combine, gps track combiner, cycling route merge, running track combine, hiking gpx merge, fit to gpx converter">
     <link rel="canonical" href="{{ app_domain }}/" />
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ app_domain }}/">
-    <meta property="og:title" content="GPX Combiner | Merge and Combine GPX and FIT route files">
-    <meta property="og:description" content="Easily combine multiple .gpx and .fit files into a single GPX file. Upload your route files, preview them on a map, and download the combined track.">
+    <meta property="og:title" content="GPX Combiner | Merge GPX & FIT Files for Strava and Komoot Upload">
+    <meta property="og:description" content="Combine multiple GPX and FIT files into one for easy Strava and Komoot uploads. Merge Garmin, Wahoo, and other GPS tracks instantly.">
     <meta property="og:image" content="{{ app_domain }}/static/logo.png">
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="{{ app_domain }}/">
-    <meta property="twitter:title" content="GPX Combiner | Merge and Combine GPX and FIT route files">
-    <meta property="twitter:description" content="Easily combine multiple .gpx and .fit files into a single GPX file. Upload your route files, preview them on a map, and download the combined track.">
+    <meta property="twitter:title" content="GPX Combiner | Merge GPX & FIT Files for Strava and Komoot Upload">
+    <meta property="twitter:description" content="Combine multiple GPX and FIT files into one for easy Strava and Komoot uploads. Merge Garmin, Wahoo, and other GPS tracks instantly.">
     <meta property="twitter:image" content="{{ app_domain }}/static/logo.png">
     <!-- Favicon & Icons -->
     <link rel="icon" type="image/png" sizes="32x32" href="/static/logo.png">
@@ -38,14 +38,48 @@
         .transition { transition: all 0.2s; }
         input:focus, button:focus { outline: 2px solid #2563eb; outline-offset: 2px; }
     </style>
+    
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "GPX Combiner",
+        "description": "Combine multiple GPX and FIT files into one for easy Strava and Komoot uploads. Merge Garmin, Wahoo, and other GPS tracks instantly.",
+        "url": "{{ app_domain }}/",
+        "applicationCategory": "UtilityApplication",
+        "operatingSystem": "Web Browser",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        },
+        "creator": {
+            "@type": "Person",
+            "name": "Twan Kerkhof",
+            "url": "https://www.twankerkhof.nl"
+        },
+        "featureList": [
+            "Combine multiple GPX files",
+            "Convert FIT files to GPX",
+            "Interactive map preview",
+            "Strava upload ready",
+            "Komoot compatible",
+            "Support for Garmin, Wahoo, Polar devices",
+            "Privacy-focused processing"
+        ],
+        "keywords": "gpx combiner, merge gpx files, combine fit files, strava upload, komoot upload, garmin gpx merge, wahoo fit combine, gps track combiner",
+        "browserRequirements": "Requires JavaScript"
+    }
+    </script>
 </head>
 <body class="bg-gradient-to-br from-rose-50 via-amber-50 to-teal-100 min-h-screen flex flex-col">
     <main class="flex-1 flex flex-col items-center justify-center px-4 py-8">
         <div class="card bg-white/90 rounded-2xl p-8 w-full max-w-md flex flex-col items-center shadow-lg border border-amber-100">
             <header class="text-center">
-                <img src="/static/logo.png" alt="GPX Combiner company logo" class="w-16 h-16 mx-auto mb-4">
+                <img src="/static/logo.png" alt="GPX Combiner - Merge GPS tracks for Strava and Komoot" class="w-16 h-16 mx-auto mb-4">
                 <h1 class="text-3xl font-bold text-rose-700 mb-2 tracking-tight">GPX Combiner</h1>
-                <h2 class="text-amber-700 mb-4">Upload <b>.gpx</b> or <b>.fit</b> files one or more at a time. See all routes on the map. Remove or add files as you wish. When ready, download the combined GPX.</h2>
+                <h2 class="text-amber-700 mb-4">Merge multiple <b>GPX</b> and <b>FIT</b> files into one track ready for <b>Strava</b> and <b>Komoot</b> upload. Perfect for combining Garmin, Wahoo, and other GPS device files.</h2>
             </header>
             <div class="w-full flex flex-col gap-4">
                 <label for="gpx-files" class="block text-sm font-medium text-rose-700">Add GPX or FIT files:</label>
@@ -58,6 +92,45 @@
         <div class="w-full max-w-2xl mt-8">
             <div class="border-b border-amber-200 mb-4"></div>
             <div id="map" class="h-64 rounded-2xl shadow border border-amber-100"></div>
+        </div>
+        
+        <!-- SEO Content Section -->
+        <div class="w-full max-w-4xl mt-12 px-4">
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="card bg-white/90 rounded-2xl p-6 shadow-lg border border-amber-100">
+                    <h3 class="text-xl font-bold text-rose-700 mb-4">🚴 Perfect for Strava & Komoot</h3>
+                    <ul class="space-y-2 text-amber-700">
+                        <li>✅ <strong>Strava Upload Ready:</strong> Combined GPX files upload seamlessly to Strava</li>
+                        <li>✅ <strong>Komoot Compatible:</strong> Import merged routes directly into Komoot for navigation</li>
+                        <li>✅ <strong>Multi-Device Support:</strong> Combine tracks from Garmin, Wahoo, Polar, and more</li>
+                        <li>✅ <strong>FIT to GPX:</strong> Automatically converts FIT files to GPX format</li>
+                    </ul>
+                </div>
+                
+                <div class="card bg-white/90 rounded-2xl p-6 shadow-lg border border-amber-100">
+                    <h3 class="text-xl font-bold text-rose-700 mb-4">🗺️ Common Use Cases</h3>
+                    <ul class="space-y-2 text-amber-700">
+                        <li>🔄 <strong>Multi-day Tours:</strong> Combine daily segments into complete route</li>
+                        <li>📱 <strong>Device Switching:</strong> Merge tracks when switching between devices</li>
+                        <li>⚡ <strong>Battery Died:</strong> Combine partial tracks from backup devices</li>
+                        <li>🏃 <strong>Split Activities:</strong> Merge running/cycling segments with breaks</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card bg-white/90 rounded-2xl p-6 mt-8 shadow-lg border border-amber-100 text-center">
+                <h3 class="text-xl font-bold text-rose-700 mb-4">🔒 Privacy & Security</h3>
+                <p class="text-amber-700 mb-4">
+                    Your GPS data never leaves our secure servers. Files are processed in memory and immediately deleted. 
+                    We only log anonymous usage statistics - no personal data or track content is stored.
+                </p>
+                <div class="flex flex-wrap justify-center gap-4 text-sm text-teal-600">
+                    <span class="bg-teal-50 px-3 py-1 rounded-full">🔒 HTTPS Encrypted</span>
+                    <span class="bg-teal-50 px-3 py-1 rounded-full">🗑️ Auto-Delete Files</span>
+                    <span class="bg-teal-50 px-3 py-1 rounded-full">🚫 No Data Storage</span>
+                    <span class="bg-teal-50 px-3 py-1 rounded-full">📊 Anonymous Logs Only</span>
+                </div>
+            </div>
         </div>
     </main>
     <footer class="text-center text-amber-400 text-xs p-4">&copy; 2025 GPX Combiner &mdash; <a href="https://www.twankerkhof.nl" class="underline hover:text-rose-600" target="_blank" rel="noopener noreferrer" title="Twan's personal website">Twan Kerkhof</a></footer>
