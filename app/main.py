@@ -38,19 +38,21 @@ app.add_middleware(
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Custom StaticFiles with caching headers
-class CachedStaticFiles(StaticFiles):
-    def file_response(self, *args, **kwargs):
-        response = super().file_response(*args, **kwargs)
-        # Add cache headers for static assets (1 year for CSS/JS, 1 month for images)
-        if any(args[0].endswith(ext) for ext in ['.css', '.js']):
-            response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
-        elif any(args[0].endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.gif', '.ico']):
-            response.headers["Cache-Control"] = "public, max-age=2592000"
-        return response
-
-app.mount("/static", CachedStaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
+app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
+
+@app.get("/styles.css", response_class=PlainTextResponse)
+def get_styles():
+    """Serve CSS directly as fallback"""
+    css_path = os.path.join(BASE_DIR, "static", "styles.css")
+    try:
+        with open(css_path, 'r') as f:
+            css_content = f.read()
+        response = PlainTextResponse(css_content, media_type="text/css")
+        response.headers["Cache-Control"] = "public, max-age=3600"
+        return response
+    except FileNotFoundError:
+        return PlainTextResponse("/* CSS file not found */", status_code=404)
 
 @app.get("/robots.txt", response_class=PlainTextResponse)
 def robots():
