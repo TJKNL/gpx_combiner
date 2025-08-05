@@ -14,7 +14,16 @@
         /* Inline fallback for critical glassmorphism styles */
         * { box-sizing: border-box; }
         body { margin: 0; font-family: 'Inter', system-ui, sans-serif; }
-        .bg-gradient-to-br { background: linear-gradient(135deg, #fef2f2 0%, #fef3c7 35%, #fed7aa 70%, #fecaca 100%); }
+        .bg-gradient-to-br { 
+            background: linear-gradient(135deg, #fef2f2 0%, #fef3c7 35%, #fed7aa 70%, #fecaca 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 8s ease infinite;
+        }
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
         .card { 
             background-color: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(16px);
