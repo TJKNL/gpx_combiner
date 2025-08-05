@@ -13,8 +13,26 @@ ul { list-style: none; margin: 0; padding: 0; }
 img { height: auto; max-width: 100%; }
 a { color: inherit; text-decoration: inherit; }
 
-/* Custom card shadow */
-.card { box-shadow: 0 4px 24px 0 rgba(0,0,0,0.07); }
+/* Custom card shadow and glassmorphism */
+.card { 
+    box-shadow: 0 4px 24px 0 rgba(0,0,0,0.07); 
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+}
+
+/* Border colors with glassmorphism enhancement */
+.border-amber-100 { 
+    border-color: rgba(254, 243, 199, 0.8); 
+}
+.border-amber-200 { border-color: #fde68a; }
+.border-rose-200 { border-color: #fecaca; }
+
+/* Enhanced glassmorphism for cards */
+.card.border-amber-100 { 
+    border-color: rgba(254, 243, 199, 0.6); 
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+}
 
 /* Transition utility */
 .transition { transition: all 0.2s; }
@@ -69,19 +87,23 @@ input:focus, button:focus { outline: 2px solid #2563eb; outline-offset: 2px; }
 /* Borders and border radius */
 .border { border-width: 1px; }
 .border-b { border-bottom-width: 1px; }
-.border-amber-100 { border-color: #fef3c7; }
-.border-amber-200 { border-color: #fde68a; }
-.border-rose-200 { border-color: #fecaca; }
 .rounded-lg { border-radius: 0.5rem; }
 .rounded-2xl { border-radius: 1rem; }
 .rounded-full { border-radius: 9999px; }
 
-/* Background colors */
+/* Background colors and gradients */
 .bg-gradient-to-br { background-image: linear-gradient(to bottom right, var(--tw-gradient-stops)); }
-.from-rose-50 { --tw-gradient-from: #fff1f2 var(--tw-gradient-from-position); --tw-gradient-to: rgb(255 241 242 / 0) var(--tw-gradient-to-position); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
-.via-amber-50 { --tw-gradient-to: rgb(255 251 235 / 0) var(--tw-gradient-to-position); --tw-gradient-stops: var(--tw-gradient-from), #fffbeb var(--tw-gradient-via-position), var(--tw-gradient-to); }
-.to-teal-100 { --tw-gradient-to: #ccfbf1 var(--tw-gradient-to-position); }
-.bg-white\/90 { background-color: rgb(255 255 255 / 0.9); }
+
+/* Combined gradient classes for the beautiful background */
+.bg-gradient-to-br.from-rose-50.via-amber-50.to-teal-100 { 
+    background: linear-gradient(to bottom right, #fff1f2, #fffbeb, #ccfbf1); 
+}
+
+/* Individual gradient stops (fallback) */
+.from-rose-50 { --tw-gradient-from: #fff1f2; --tw-gradient-to: rgba(255, 241, 242, 0); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
+.via-amber-50 { --tw-gradient-to: rgba(255, 251, 235, 0); --tw-gradient-stops: var(--tw-gradient-from), #fffbeb, var(--tw-gradient-to); }
+.to-teal-100 { --tw-gradient-to: #ccfbf1; }
+.bg-white\/90 { background-color: rgba(255, 255, 255, 0.9); }
 .bg-rose-50 { background-color: #fff1f2; }
 .bg-teal-50 { background-color: #f0fdfa; }
 .bg-teal-500 { background-color: #14b8a6; }
