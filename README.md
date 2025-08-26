@@ -55,6 +55,21 @@ Combine multiple **GPX** _or_ **FIT** activity files into a single GPX in second
 3.  Add `APP_DOMAIN=https://your-domain.tld` (used by `sitemap.xml`).
 4.  That's it – build & run.  Logs are visible in the Railway dashboard.
 
+### Memory/Cost tuning (recommended)
+The default setup is optimized for small instances:
+- Procfile runs a single Uvicorn worker (`WEB_CONCURRENCY=1` by default)
+- Heavy libraries are lazy-loaded so idle memory usage stays low
+- SQLAlchemy pool is conservative by default
+
+Environment variables you can tweak in Railway variables:
+- `WEB_CONCURRENCY=1` – number of Uvicorn workers
+- `DB_POOL_SIZE=1` – SQLAlchemy pool size
+- `DB_MAX_OVERFLOW=1` – extra transient connections allowed
+- `DB_POOL_TIMEOUT=10` – seconds to wait for a connection
+- `DB_POOL_RECYCLE=1800` – recycle age to avoid stale connections
+
+If you expect high concurrency, scale vertically or raise `WEB_CONCURRENCY` and DB pool values accordingly.
+
 ---
 ## Endpoints (Quick Ref)
 | Verb | Path            | Purpose                     |
