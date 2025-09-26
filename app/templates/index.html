@@ -97,6 +97,105 @@
         .grid { display: grid; }
         @media (min-width: 768px) { .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
         .gap-8 { gap: 2rem; }
+        
+        /* iOS-style toggle switch */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+        
+        .toggle-label-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .toggle-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #be123c;
+        }
+        
+        .help-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            font-size: 11px;
+            font-weight: bold;
+            border-radius: 50%;
+            background: #f3f4f6;
+            color: #6b7280;
+            border: 1px solid #d1d5db;
+            cursor: help;
+            position: relative;
+        }
+        
+        .help-icon:hover::after {
+            content: "Single track: Merges all files into one continuous track, ideal for Strava/Komoot. Multiple tracks: Keeps files separate; some platforms may import as separate activities.";
+            position: absolute;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 240px;
+            background: rgba(255, 255, 255, 0.98);
+            color: #0f766e;
+            border: 1px solid #14b8a6;
+            padding: 8px 12px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            font-size: 12px;
+            line-height: 1.4;
+            z-index: 100;
+            pointer-events: none;
+        }
+        
+        .toggle-switch-wrapper {
+            position: relative;
+        }
+        
+        .toggle-input {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-switch {
+            display: block;
+            width: 48px;
+            height: 28px;
+            background: #d1d5db;
+            border-radius: 14px;
+            position: relative;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .toggle-switch::after {
+            content: "";
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .toggle-input:checked + .toggle-switch {
+            background: #14b8a6;
+        }
+        
+        .toggle-input:checked + .toggle-switch::after {
+            transform: translateX(20px);
+        }
     </style>
     
     <!-- Leaflet CSS with integrity and defer -->
@@ -166,13 +265,12 @@
                 <input id="gpx-files" type="file" accept=".gpx,.fit" multiple class="block w-full text-gray-700 border border-rose-200 rounded-lg p-3 bg-rose-50 focus:border-amber-400 transition" />
                 
                 <!-- Track Combination Toggle (iOS-style) -->
-                <div class="toggle">
-                    <div style="display:flex; align-items:center; gap:8px;">
+                <div class="toggle-container">
+                    <div class="toggle-label-group">
                         <span class="toggle-label">Combine into single track</span>
-                        <span class="help-icon" aria-label="Help" role="img" data-tooltip="Single track: Merges all files into one continuous track, ideal for Strava/Komoot to treat as one activity. Multiple tracks: Keeps files separate; some platforms may import them as separate activities.">?
-                        </span>
+                        <span class="help-icon">?</span>
                     </div>
-                    <div>
+                    <div class="toggle-switch-wrapper">
                         <input class="toggle-input" type="checkbox" id="single-track-toggle" checked>
                         <label class="toggle-switch" for="single-track-toggle"></label>
                     </div>
