@@ -94,7 +94,7 @@ def index(request: Request):
     return response
 
 @app.post("/upload")
-async def upload_gpx(request: Request, files: list[UploadFile] = File(...), db: Session = Depends(database.get_db)):
+async def upload_gpx(request: Request, files: list[UploadFile] = File(...), single_track: str = Form("true"), db: Session = Depends(database.get_db)):
     # Validate file types and size
     file_contents = []
     for file in files:
@@ -106,8 +106,16 @@ async def upload_gpx(request: Request, files: list[UploadFile] = File(...), db: 
         file_contents.append((file.filename, content))
     
     try:
-        # New default produces a single track/segment; fills long pauses minimally
-        combined_gpx = combine_gpx_files(file_contents, single_track=True, fill_pauses=True, gap_threshold_seconds=600)
+        # Parse the single_track parameter from the form
+        use_single_track = single_track.lower() == "true"
+        
+        # Use user's preference for track combination
+        combined_gpx = combine_gpx_files(
+            file_contents, 
+            single_track=use_single_track, 
+            fill_pauses=use_single_track,  # Only fill pauses when using single track
+            gap_threshold_seconds=600
+        )
 
         # Log the download after successful combination
         logger.info(f"Logging anonymous download event for IP: {request.client.host}")

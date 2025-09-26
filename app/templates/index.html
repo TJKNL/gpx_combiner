@@ -164,6 +164,32 @@
             <div class="w-full flex flex-col gap-4">
                 <label for="gpx-files" class="block text-sm font-medium text-rose-700">Add GPX or FIT files:</label>
                 <input id="gpx-files" type="file" accept=".gpx,.fit" multiple class="block w-full text-gray-700 border border-rose-200 rounded-lg p-3 bg-rose-50 focus:border-amber-400 transition" />
+                
+                <!-- Track Combination Toggle -->
+                <div class="flex items-center justify-between p-3 bg-amber-50 rounded-lg border border-amber-200">
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm font-medium text-amber-700">Combine in single track</span>
+                        <div class="relative inline-block w-10 h-6">
+                            <input type="checkbox" id="single-track-toggle" checked class="sr-only peer">
+                            <label for="single-track-toggle" class="absolute inset-0 bg-gray-300 peer-checked:bg-teal-500 rounded-full cursor-pointer transition-colors duration-200 ease-in-out"></label>
+                            <span class="absolute top-0.5 left-0.5 bg-white w-5 h-5 rounded-full transition-transform duration-200 ease-in-out peer-checked:translate-x-4"></span>
+                        </div>
+                    </div>
+                    <button type="button" id="track-info-btn" class="text-amber-600 hover:text-amber-700 transition-colors" title="How does this work?">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path>
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- Info Tooltip -->
+                <div id="track-info-tooltip" class="hidden bg-teal-50 border border-teal-200 rounded-lg p-3 text-sm text-teal-700">
+                    <div class="font-semibold mb-2">Track Combination Options:</div>
+                    <div class="space-y-1">
+                        <div><strong>✓ Single track (recommended):</strong> Merges all files into one continuous track. Perfect for Strava/Komoot uploads - they'll see it as one activity.</div>
+                        <div><strong>✗ Multiple tracks:</strong> Keeps files as separate tracks. Some platforms may interpret these as separate activities.</div>
+                    </div>
+                </div>
             </div>
             <div id="file-list" class="w-full mt-6 mb-2 text-teal-700"></div>
             <button id="download-link" class="w-full bg-teal-500 text-white px-4 py-3 rounded-lg font-semibold hover:bg-amber-400 hover:text-teal-900 transition mt-2 disabled:opacity-50" disabled>Download Combined GPX</button>
