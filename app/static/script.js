@@ -4,8 +4,6 @@ const fileListDiv = document.getElementById('file-list');
 const downloadBtn = document.getElementById('download-link');
 const mapDiv = document.getElementById('map');
 const singleTrackToggle = document.getElementById('single-track-toggle');
-const trackInfoBtn = document.getElementById('track-info-btn');
-const trackInfoTooltip = document.getElementById('track-info-tooltip');
 let map, gpxLayers = [];
 
 // Warm, modern color palette matching the site
@@ -200,18 +198,6 @@ downloadBtn.addEventListener('click', async () => {
         const errorData = await res.json();
         const errorMessage = errorData.error || 'An unknown error occurred.';
         alert(`Failed to combine files: ${errorMessage}`);
-    }
-});
-
-// Tooltip functionality
-trackInfoBtn.addEventListener('click', () => {
-    trackInfoTooltip.classList.toggle('hidden');
-});
-
-// Close tooltip when clicking outside
-document.addEventListener('click', (e) => {
-    if (!trackInfoBtn.contains(e.target) && !trackInfoTooltip.contains(e.target)) {
-        trackInfoTooltip.classList.add('hidden');
     }
 });
 
