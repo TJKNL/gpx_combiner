@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 import os
 from .gpx_utils import combine_gpx_files, fit_to_gpx_xml
 import io
@@ -11,6 +12,7 @@ import datetime
 import logging
 import sys
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from . import database
 
 # Configure logging to output to stdout for containerized environments like Railway
@@ -24,6 +26,7 @@ logger = logging.getLogger(__name__)
 database.Base.metadata.create_all(bind=database.engine)
 
 app = FastAPI(title="GPX Combiner Web App")
+security = HTTPBasic()
 
 # Add compression middleware for better performance
 app.add_middleware(GZipMiddleware, minimum_size=1000)
@@ -103,7 +106,8 @@ async def upload_gpx(request: Request, files: list[UploadFile] = File(...), db: 
         file_contents.append((file.filename, content))
     
     try:
-        combined_gpx = combine_gpx_files(file_contents)
+        # New default produces a single track/segment; fills long pauses minimally
+        combined_gpx = combine_gpx_files(file_contents, single_track=True, fill_pauses=True, gap_threshold_seconds=600)
 
         # Log the download after successful combination
         logger.info(f"Logging anonymous download event for IP: {request.client.host}")
@@ -135,6 +139,52 @@ async def convert_fit(file: UploadFile = File(...)):
     except Exception as e:
         return PlainTextResponse(f"Error converting FIT: {str(e)}", status_code=400)
     return gpx_xml
+
+def _require_admin(credentials: HTTPBasicCredentials = Depends(security)):
+    """Require admin authentication using environment variables"""
+    expected_password = os.getenv("ADMIN_PASSWORD")
+    expected_username = os.getenv("ADMIN_USERNAME", "admin")
+    if not expected_password:
+        raise HTTPException(status_code=503, detail="ADMIN_PASSWORD not configured")
+    if credentials.username != expected_username or credentials.password != expected_password:
+        raise HTTPException(status_code=401, detail="Unauthorized", headers={"WWW-Authenticate": "Basic"})
+    return True
+
+@app.get("/admin", response_class=HTMLResponse)
+def admin_dashboard(request: Request, _: bool = Depends(_require_admin), db: Session = Depends(database.get_db)):
+    """Admin dashboard with usage statistics"""
+    # Aggregate stats
+    total_downloads = db.query(database.DownloadLog).count()
+    unique_users = db.query(func.count(func.distinct(database.DownloadLog.ip_hash))).scalar() or 0
+    since = datetime.datetime.utcnow() - datetime.timedelta(days=30)
+    rows = (
+        db.query(func.date(database.DownloadLog.timestamp).label('day'), func.count(database.DownloadLog.id))
+        .filter(database.DownloadLog.timestamp >= since)
+        .group_by('day')
+        .order_by('day')
+        .all()
+    )
+    daily_map = {str(day): count for day, count in rows}
+    daily = []
+    for i in range(30, -1, -1):
+        day = (datetime.datetime.utcnow() - datetime.timedelta(days=i)).date()
+        daily.append({"day": str(day), "count": daily_map.get(str(day), 0)})
+    recent = db.query(database.DownloadLog).order_by(database.DownloadLog.timestamp.desc()).limit(20).all()
+
+    app_domain = os.getenv("APP_DOMAIN", f"{request.url.scheme}://{request.url.netloc}")
+    response = templates.TemplateResponse(
+        "admin.html",
+        {
+            "request": request,
+            "app_domain": app_domain,
+            "total_downloads": total_downloads,
+            "unique_users": unique_users,
+            "daily": daily,
+            "recent": recent,
+        }
+    )
+    response.headers["Cache-Control"] = "no-store"
+    return response
 
 @app.exception_handler(404)
 async def custom_404_handler(request: Request, exc: HTTPException):
